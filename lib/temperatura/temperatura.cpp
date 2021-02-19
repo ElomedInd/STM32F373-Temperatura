@@ -54,4 +54,8 @@ void acelerometro_ambiente_loop()
     oled_print(4, 2, "umidade %.0f %%    ", ler_umidade());
     oled_print(5, 2, "temp.   %.1f       ", ler_temperatura_ambiente());
     oled_print(6, 2, "pressao %.1f       ", ler_pressao_atmosferica());
+
+    uart_print("umidade %.0f %%    \r\n", ler_umidade());
+    uart_print("temp.   %.1f       \r\n", ler_temperatura_ambiente());
+    uart_print("pressao %.1f       \r\n", ler_pressao_atmosferica());
 }

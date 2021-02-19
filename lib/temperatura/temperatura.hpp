@@ -10,6 +10,7 @@ extern "C"
 
     void acelerometro_ambiente_setup();
     void acelerometro_ambiente_loop();
+    void mlx90632_ambiente_loop();
     extern float ler_pressao_atmosferica();
     extern float ler_temperatura_ambiente();
     extern float ler_umidade();

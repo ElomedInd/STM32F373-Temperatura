@@ -51,6 +51,8 @@
 #include "OLED_Hal_SPI.h"
 #include "temperatura.hpp"
 #include "interface_comunicacao.hpp"
+#include "mlx90632.h"
+#include "mlx90632_depends.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -109,9 +111,10 @@ int main(void)
   MX_TIM17_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+
   Oled_Init();
 
-  acelerometro_ambiente_setup();
+  //acelerometro_ambiente_setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -122,8 +125,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    acelerometro_ambiente_loop();
-    HAL_WWDG_Refresh(&hwwdg);
+    //acelerometro_ambiente_loop();
+    mlx90632_ambiente_loop();
+    
   }
   /* USER CODE END 3 */
 }
