@@ -114,7 +114,7 @@ int main(void)
 
   Oled_Init();
 
-  //acelerometro_ambiente_setup();
+  acelerometro_ambiente_setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -125,7 +125,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    //acelerometro_ambiente_loop();
+    acelerometro_ambiente_loop();
     mlx90632_ambiente_loop();
     
   }

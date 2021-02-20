@@ -81,8 +81,7 @@ int mlx90632_start_measurement(void)
         // data not ready
         return -ETIMEDOUT;
     }
-
-    return (reg_status & MLX90632_STAT_CYCLE_POS) >> 2;
+    return (reg_status & 0x007F) >> 2;
 }
 
 /** Based on @link mlx90632_start_measurement @endlink return value fill channel_new and channel_old
@@ -695,6 +694,108 @@ mlx90632_meas_t mlx90632_get_refresh_rate(void)
         return MLX90632_MEAS_HZ_ERROR;
 
     return MLX90632_REFRESH_RATE(meas1);
+}
+
+int32_t mlx90632_get_calibration_parameters(mlx90632_calibration_parameters *parameters)
+{
+    int32_t ret, tmp32;
+    int16_t tmp16;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_P_R, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->P_R = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_P_G, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->P_G = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_P_T, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->P_T = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_P_O, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->P_O = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_Ea, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->Ea = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_Eb, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->Eb = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_Fa, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->Fa = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_Fb, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->Fb = tmp32;
+    ret = mlx90632_i2c_read_int32(MLX90632_EE_Ga, &tmp32);
+    if (ret < 0)
+        return ret;
+    parameters->Ga = tmp32;
+    ret = mlx90632_i2c_read_int16(MLX90632_EE_Gb, &tmp16);
+    if (ret < 0)
+        return ret;
+    parameters->Gb = tmp16;
+    ret = mlx90632_i2c_read_int16(MLX90632_EE_Ka, &tmp16);
+    if (ret < 0)
+        return ret;
+    parameters->Ka = tmp16;
+    ret = mlx90632_i2c_read_int16(MLX90632_EE_Ha, &tmp16);
+    if (ret < 0)
+        return ret;
+    parameters->Ha = tmp16;
+    ret = mlx90632_i2c_read_int16(MLX90632_EE_Hb, &tmp16);
+    if (ret < 0)
+        return ret;
+    parameters->Hb = tmp16;
+    return 0;
+}
+
+int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, uint8_t device_address, double *temperature)
+{
+    double ambient; /**< Ambient temperature in degrees Celsius */
+    double object;  /**< Object temperature in degrees Celsius */
+    int ret, tries = MLX90632_MAX_NUMBER_MESUREMENT_READ_TRIES;
+    uint16_t reg_status, reg_control;
+    int16_t ram6, ram9, amb, ambient_new_raw, ambient_old_raw, object_new_raw, object_old_raw;
+    int16_t obj1, obj2;
+    uint16_t channel;   
+
+    ret = mlx90632_read_temp_raw(&ambient_new_raw, &ambient_old_raw,
+                                 &object_new_raw, &object_old_raw);
+    if (ret < 0)
+        uart_print("Erro ao ler raw");
+
+    /* Now start calculations (no more i2c accesses) */
+    /* Calculate ambient temperature */
+    ambient = mlx90632_calc_temp_ambient(ambient_new_raw, ambient_old_raw,
+                                         parameters.P_T, parameters.P_R, parameters.P_G, parameters.P_O, parameters.Gb);
+    uart_print("TA: %.2lf\r\n", ambient);
+    /* Get preprocessed temperatures needed for object temperature calculation */
+    double pre_ambient = mlx90632_preprocess_temp_ambient(ambient_new_raw,
+                                                          ambient_old_raw, parameters.Gb);
+    double pre_object = mlx90632_preprocess_temp_object(object_new_raw, object_old_raw,
+                                                        ambient_new_raw, ambient_old_raw,
+                                                        parameters.Ka);
+    /* Calculate object temperature */
+    object = mlx90632_calc_temp_object(pre_object, pre_ambient, parameters.Ea, parameters.Eb, parameters.Ga, parameters.Fa, parameters.Fb, parameters.Ha, parameters.Hb);
+    uart_print("TO: %.2lf\r\n", object);
+
+    return 0;
+}
+
+void mlx90632_ambiente_loop()
+{
+    double temperatura;
+    int32_t ret;
+    mlx90632_calibration_parameters parameters;
+    mlx90632_set_emissivity(HUMAN_SKIN_EMISSIVITY);
+    ret = mlx90632_get_calibration_parameters(&parameters);
+    mlx90632_read_temperature(parameters, 0x3A << 1, &temperatura);
 }
 
 ///@}

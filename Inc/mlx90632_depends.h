@@ -30,10 +30,6 @@
  *
  * @{
  */
-
-#define MLX90632_ADDRESS_EAR 0x3A
-#define MLX90632_ADDRESS_ARM 0x3B
-
 #ifndef _MLX90632_DEPENDS_LIB_
 #define _MLX90632_DEPENDS_LIB_
 #include <stdint.h>
@@ -149,22 +145,6 @@ int32_t mlx90632_i2c_read_int16(uint16_t register_address, int16_t *value);
  * @retval <0 for failure
  */
 int32_t mlx90632_get_calibration_parameters(mlx90632_calibration_parameters *parameters);
-
-/** Reads the object temperature from mlx90632
- *
- * @param[in] device_address
- * @param[out] *temperature
-
- * @retval 0 for success
- * @retval <0 for failure
- */
-int32_t mlx90632_read_temperature(uint8_t device_address,double *temperature);
-
-
-/** Used on main to read temperatures and show on OLED and Serial
- *
- */
-void mlx90632_ambiente_loop();
 
 ///@}
 #endif

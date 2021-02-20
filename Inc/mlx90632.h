@@ -64,8 +64,7 @@
 #endif
 #ifndef GENMASK
 #ifndef BITS_PER_LONG
-#warning "Using default BITS_PER_LONG value"
-#define BITS_PER_LONG 64 /**< Define how many bits per long your CPU has */
+#define BITS_PER_LONG 32 /**< Define how many bits per long your CPU has */
 #endif
 #define GENMASK(h, l) \
     (((~0UL) << (l)) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
@@ -73,6 +72,14 @@
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0])) /**< Return number of elements in array */
 #endif
+
+/* Emissivity */
+#ifndef HUMAN_SKIN_EMISSIVITY
+#define HUMAN_SKIN_EMISSIVITY 0.97
+#endif
+
+#define MLX90632_ADDRESS_EAR 0x3A
+#define MLX90632_ADDRESS_ARM 0x3B
 
 /* Memory sections addresses */
 #define MLX90632_ADDR_RAM   0x4000 /**< Start address of ram */
