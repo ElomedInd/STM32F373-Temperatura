@@ -146,5 +146,8 @@ int32_t mlx90632_i2c_read_int16(uint16_t register_address, int16_t *value);
  */
 int32_t mlx90632_get_calibration_parameters(mlx90632_calibration_parameters *parameters);
 
+//Default address
+void mlx90632_set_address(uint8_t address);
+uint8_t mlx90632_get_address();
 ///@}
 #endif

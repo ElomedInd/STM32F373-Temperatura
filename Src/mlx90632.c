@@ -755,13 +755,12 @@ int32_t mlx90632_get_calibration_parameters(mlx90632_calibration_parameters *par
     return 0;
 }
 
-int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, uint8_t device_address, double *object_temperature, double *ambient_temperature)
+int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, double *object_temperature, double *ambient_temperature)
 {
     double ambient; /**< Ambient temperature in degrees Celsius */
     double object;  /**< Object temperature in degrees Celsius */
     int ret;
     int16_t ambient_new_raw, ambient_old_raw, object_new_raw, object_old_raw;
-
     ret = mlx90632_read_temp_raw(&ambient_new_raw, &ambient_old_raw,
                                  &object_new_raw, &object_old_raw);
     if (ret < 0)
@@ -788,13 +787,46 @@ void mlx90632_ambiente_loop()
     int32_t ret;
     mlx90632_calibration_parameters parameters;
     mlx90632_set_emissivity(HUMAN_SKIN_EMISSIVITY);
+
+    mlx90632_set_address(0x3A);
     ret = mlx90632_get_calibration_parameters(&parameters);
-    mlx90632_read_temperature(parameters, 0x3A << 1, &object_temperature, &ambient_temperature);
-    uart_print("\r\n---------------SENSOR 1---------------\r\n");
-    uart_print("AMB: %.2lf - OBJ: %.2lf\r\n", ((double)ambient_temperature), ((double)object_temperature));
-    mlx90632_read_temperature(parameters, 0x3B << 1, &object_temperature, &ambient_temperature);
-    uart_print("\r\n---------------SENSOR 2---------------\r\n");
-    uart_print("AMB: %.2lf - OBJ: %.2lf\r\n\r\n", ((double)ambient_temperature), ((double)object_temperature));
+    if (ret < 0)
+    {
+        uart_print("Erro ao ler sensor 1\r\n");
+    }
+    else
+    {
+        ret = mlx90632_read_temperature(parameters, &object_temperature, &ambient_temperature);
+        uart_print("\r\n---------------SENSOR 1(%x)---------------\r\n", mlx90632_get_address() >> 1);
+        if (ret < 0)
+        {
+            uart_print("Erro ao ler sensor 1\r\n");
+        }
+        else
+        {
+            uart_print("AMB: %.2lf - OBJ: %.2lf\r\n", ((double)ambient_temperature), ((double)object_temperature));
+        }
+    }
+
+    mlx90632_set_address(0x3B);
+    ret = mlx90632_get_calibration_parameters(&parameters);
+    if (ret < 0)
+    {
+        uart_print("Erro ao ler sensor 2\r\n");
+    }
+    else
+    {
+        ret = mlx90632_read_temperature(parameters, &object_temperature, &ambient_temperature);
+        uart_print("\r\n---------------SENSOR 2(%x)---------------\r\n", mlx90632_get_address() >> 1);
+        if (ret < 0)
+        {
+            uart_print("Erro ao ler sensor 2\r\n");
+        }
+        else
+        {
+            uart_print("AMB: %.2lf - OBJ: %.2lf\r\n\r\n", ((double)ambient_temperature), ((double)object_temperature));
+        }
+    }
 }
 
 ///@}
