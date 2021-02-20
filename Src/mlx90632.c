@@ -755,15 +755,12 @@ int32_t mlx90632_get_calibration_parameters(mlx90632_calibration_parameters *par
     return 0;
 }
 
-int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, uint8_t device_address, double *temperature)
+int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, uint8_t device_address, double *object_temperature, double *ambient_temperature)
 {
     double ambient; /**< Ambient temperature in degrees Celsius */
     double object;  /**< Object temperature in degrees Celsius */
-    int ret, tries = MLX90632_MAX_NUMBER_MESUREMENT_READ_TRIES;
-    uint16_t reg_status, reg_control;
-    int16_t ram6, ram9, amb, ambient_new_raw, ambient_old_raw, object_new_raw, object_old_raw;
-    int16_t obj1, obj2;
-    uint16_t channel;   
+    int ret;
+    int16_t ambient_new_raw, ambient_old_raw, object_new_raw, object_old_raw;
 
     ret = mlx90632_read_temp_raw(&ambient_new_raw, &ambient_old_raw,
                                  &object_new_raw, &object_old_raw);
@@ -772,30 +769,32 @@ int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, ui
 
     /* Now start calculations (no more i2c accesses) */
     /* Calculate ambient temperature */
-    ambient = mlx90632_calc_temp_ambient(ambient_new_raw, ambient_old_raw,
-                                         parameters.P_T, parameters.P_R, parameters.P_G, parameters.P_O, parameters.Gb);
-    uart_print("TA: %.2lf\r\n", ambient);
+    ambient = mlx90632_calc_temp_ambient(ambient_new_raw, ambient_old_raw, parameters.P_T, parameters.P_R, parameters.P_G, parameters.P_O, parameters.Gb);
     /* Get preprocessed temperatures needed for object temperature calculation */
-    double pre_ambient = mlx90632_preprocess_temp_ambient(ambient_new_raw,
-                                                          ambient_old_raw, parameters.Gb);
-    double pre_object = mlx90632_preprocess_temp_object(object_new_raw, object_old_raw,
-                                                        ambient_new_raw, ambient_old_raw,
-                                                        parameters.Ka);
+    double pre_ambient = mlx90632_preprocess_temp_ambient(ambient_new_raw, ambient_old_raw, parameters.Gb);
+    double pre_object = mlx90632_preprocess_temp_object(object_new_raw, object_old_raw, ambient_new_raw, ambient_old_raw, parameters.Ka);
     /* Calculate object temperature */
     object = mlx90632_calc_temp_object(pre_object, pre_ambient, parameters.Ea, parameters.Eb, parameters.Ga, parameters.Fa, parameters.Fb, parameters.Ha, parameters.Hb);
-    uart_print("TO: %.2lf\r\n", object);
+
+    *ambient_temperature = ambient;
+    *object_temperature = object;
 
     return 0;
 }
 
 void mlx90632_ambiente_loop()
 {
-    double temperatura;
+    double object_temperature, ambient_temperature;
     int32_t ret;
     mlx90632_calibration_parameters parameters;
     mlx90632_set_emissivity(HUMAN_SKIN_EMISSIVITY);
     ret = mlx90632_get_calibration_parameters(&parameters);
-    mlx90632_read_temperature(parameters, 0x3A << 1, &temperatura);
+    mlx90632_read_temperature(parameters, 0x3A << 1, &object_temperature, &ambient_temperature);
+    uart_print("\r\n---------------SENSOR 1---------------\r\n");
+    uart_print("AMB: %.2lf - OBJ: %.2lf\r\n", ((double)ambient_temperature), ((double)object_temperature));
+    mlx90632_read_temperature(parameters, 0x3B << 1, &object_temperature, &ambient_temperature);
+    uart_print("\r\n---------------SENSOR 2---------------\r\n");
+    uart_print("AMB: %.2lf - OBJ: %.2lf\r\n\r\n", ((double)ambient_temperature), ((double)object_temperature));
 }
 
 ///@}
