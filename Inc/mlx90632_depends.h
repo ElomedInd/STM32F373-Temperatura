@@ -43,23 +43,6 @@
 #include "gpio.h"
 #include "mlx90632.h"
 
-typedef struct
-{
-    int32_t P_R;
-    int32_t P_G;
-    int32_t P_T;
-    int32_t P_O;
-    int32_t Ea;
-    int32_t Eb;
-    int32_t Fa;
-    int32_t Fb;
-    int32_t Ga;
-    int16_t Gb;
-    int16_t Ka;
-    int16_t Ha;
-    int16_t Hb;
-}  mlx90632_calibration_parameters;
-
 /** Read the register_address value from the mlx90632
  *
  * i2c read is processor specific and this function expects to have address of mlx90632 known, as it operates purely on
@@ -135,19 +118,16 @@ int32_t mlx90632_i2c_read_int32(uint16_t register_address, int32_t *value);
  */
 int32_t mlx90632_i2c_read_int16(uint16_t register_address, int16_t *value);
 
-/** Reads the calibration parameters of mlx90632
+/** Sets the I2C address of mlx90632 to communicate with
  *
- * reads the calibration parameters from EEPROM that are needed for calculating temperatures
- *
- * @param[out] *parameters Calibration parameters
-
- * @retval 0 for success
- * @retval <0 for failure
+ * @param[in] address I2C address
  */
-int32_t mlx90632_get_calibration_parameters(mlx90632_calibration_parameters *parameters);
-
-//Default address
 void mlx90632_set_address(uint8_t address);
+
+/** Gets current I2C address of mlx90632 to communicate with
+ *
+ * @retval Current I2C address
+ */
 uint8_t mlx90632_get_address();
 ///@}
 #endif

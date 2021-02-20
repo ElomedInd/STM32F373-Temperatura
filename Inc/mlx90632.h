@@ -37,6 +37,8 @@
 #ifndef _MLX90632_LIB_
 #define _MLX90632_LIB_
 
+#include "interface_comunicacao.hpp"
+
 /* Including CRC calculation functions */
 #include <errno.h>
 
@@ -119,6 +121,24 @@
 #define MLX90632_EE_EXTENDED_MEAS1     0x24F1 /**< Extended measurement 1 16bit */
 #define MLX90632_EE_EXTENDED_MEAS2     0x24F2 /**< Extended measurement 2 16bit */
 #define MLX90632_EE_EXTENDED_MEAS3     0x24F3 /**< Extended measurement 3 16bit */
+
+/*Calibration Parameters*/
+typedef struct
+{
+    int32_t P_R;
+    int32_t P_G;
+    int32_t P_T;
+    int32_t P_O;
+    int32_t Ea;
+    int32_t Eb;
+    int32_t Fa;
+    int32_t Fb;
+    int32_t Ga;
+    int16_t Gb;
+    int16_t Ka;
+    int16_t Ha;
+    int16_t Hb;
+}  mlx90632_calibration_parameters;
 
 /* Refresh Rate */
 typedef enum mlx90632_meas_e {
@@ -413,6 +433,8 @@ double mlx90632_get_emissivity(void);
  */
 int32_t mlx90632_start_measurement_burst(void);
 
+int32_t  mlx90632_get_meas_type();
+
 /** Reads the refresh rate and calculates the time needed for a single measurment from the EEPROM settings.
  *
  * @param[in] meas Measurement to read the frefresh rate for
@@ -459,6 +481,25 @@ int32_t mlx90632_set_refresh_rate(mlx90632_meas_t measRate);
  */
 mlx90632_meas_t mlx90632_get_refresh_rate(void);
 
+/** Reads the calibration parameters of mlx90632 stored in its EEPROM
+ *
+ * @param[out] *parameters Calibration parameters
+
+ * @retval 0 for success
+ * @retval <0 for failure
+ */
+int32_t mlx90632_get_calibration_parameters(mlx90632_calibration_parameters *parameters);
+
+/** Reads the ambient and object temperatures in °C
+ *
+ * @param[in] parameters Calibration parameters read with @link mlx90632_get_calibration_parameters @endlink
+ * @param[out] *object_temperature Object Temperature in °C
+ * @param[out] *ambient_temperature Ambient Temperature in °C
+ * 
+ * @retval 0 for success
+ * @retval <0 for failure
+ */
+int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, double *object_temperature, double *ambient_temperature);
 ///@}
 
 #ifdef TEST

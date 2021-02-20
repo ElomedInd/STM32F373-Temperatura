@@ -53,14 +53,12 @@ int32_t mlx90632_i2c_read_int32(uint16_t register_address, int32_t *value)
     *value = *value << 8;
     *value |= d[1];
     *value = *value << 8;
-    //HAL_UART_Transmit(&huart1, (uint8_t*) d, 2, 10);
     if (HAL_I2C_Mem_Read(&hi2c1, mlx90632_get_address(), register_address,
                          I2C_MEMADD_SIZE_16BIT, d, 2, 50) != HAL_OK)
         return -1;
     *value |= d[0];
     *value = *value << 8;
     *value |= d[1];
-    //HAL_UART_Transmit(&huart1, (uint8_t*) d, 2, 10);
     return 0;
 }
 
@@ -73,7 +71,6 @@ int32_t mlx90632_i2c_read_int16(uint16_t register_address, int16_t *value)
     *value = d[0];
     *value = *value << 8;
     *value |= d[1];
-    //HAL_UART_Transmit(&huart1, (uint8_t*) d, 2, 10);
     return 0;
 }
 

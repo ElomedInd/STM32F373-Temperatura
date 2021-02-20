@@ -764,7 +764,7 @@ int32_t mlx90632_read_temperature(mlx90632_calibration_parameters parameters, do
     ret = mlx90632_read_temp_raw(&ambient_new_raw, &ambient_old_raw,
                                  &object_new_raw, &object_old_raw);
     if (ret < 0)
-        uart_print("Erro ao ler raw");
+        return ret;
 
     /* Now start calculations (no more i2c accesses) */
     /* Calculate ambient temperature */
