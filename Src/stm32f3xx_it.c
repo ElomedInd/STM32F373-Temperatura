@@ -36,7 +36,7 @@
 #include "stm32f3xx_it.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "Encoder.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -176,7 +176,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+  Tecla_Reset();
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
@@ -198,7 +198,7 @@ void SysTick_Handler(void)
 void EXTI2_TSC_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI2_TSC_IRQn 0 */
-
+  Tecla_Encoder();
   /* USER CODE END EXTI2_TSC_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
   /* USER CODE BEGIN EXTI2_TSC_IRQn 1 */

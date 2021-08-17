@@ -51,6 +51,7 @@
 #include "OLED_Hal_SPI.h"
 #include "temperatura.hpp"
 #include "interface_comunicacao.hpp"
+#include "Encoder.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -110,7 +111,7 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   Oled_Init();
-
+  Encoder_Init();
   acelerometro_ambiente_setup();
   /* USER CODE END 2 */
 
@@ -118,7 +119,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+    Encoder();
+    if (tecla)
+    {
+      uart_print("tecla pressionada ");
+    }
+    uart_print("encoder pos : %d\r\n", encoder);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

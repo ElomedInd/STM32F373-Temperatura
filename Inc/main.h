@@ -68,10 +68,10 @@
 #define ESP32_PWR_GPIO_Port GPIOB
 #define BUZZER_Pin GPIO_PIN_5
 #define BUZZER_GPIO_Port GPIOB
-#define ENCODER_A_Pin GPIO_PIN_6
+#define ENCODER_B_Pin GPIO_PIN_6
+#define ENCODER_B_GPIO_Port GPIOB
+#define ENCODER_A_Pin GPIO_PIN_7
 #define ENCODER_A_GPIO_Port GPIOB
-#define ENCODER_AB7_Pin GPIO_PIN_7
-#define ENCODER_AB7_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**
